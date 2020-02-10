@@ -1,0 +1,5 @@
+beautifulsoup4==4.8.2
+peewee==3.13.1
+requests==2.22.0
+pandas==1.0.0
+selenium==3.141.0
