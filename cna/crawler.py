@@ -15,7 +15,7 @@ def get_data(main_urls):
         print(main_url)
         options = Options()
         options.headless = True
-        browser = webdriver.Firefox(executable_path='//geckodriver',
+        browser = webdriver.Firefox(executable_path='../geckodriver',
                                     options=options)
 
         browser.get(main_url)

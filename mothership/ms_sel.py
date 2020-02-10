@@ -6,8 +6,10 @@ import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-driver = webdriver.Firefox(executable_path='//geckodriver')
+driver = webdriver.Firefox(executable_path='../geckodriver')
 driver.get("https://www.mothership.sg/category/news/")
+
+exit()
 
 
 def get_data(url):
