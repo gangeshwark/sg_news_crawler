@@ -8,6 +8,9 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from tqdm import tqdm
 
+from db_setup import NewsArticle, db
+import uuid
+
 
 def get_data(main_urls):
     count = 0
@@ -46,23 +49,39 @@ def get_data(main_urls):
                 dt = datetime.fromtimestamp(int(ep_time))
                 # print it
 
-                publish_time = time.strftime('%Y-%m-%d', time.localtime(int(ep_time)))
+                publish_time = time.strftime('%Y-%m-%d ', time.localtime(int(ep_time)))
 
                 print(headline)
                 print(url)
                 print(publish_time)
                 # print(publish_time2)
                 data.loc[count] = [headline, url, publish_time, 'Channel News Asia']
+                news_article = NewsArticle()
+                news_article.id = uuid.uuid3(uuid.NAMESPACE_URL, url)
+                news_article.headline = headline
+                news_article.URL = url
+                news_article.publish_time = publish_time
+                news_article.source_name = 'Channel News Asia'
+                news_article.save()
+
+                # NewsArticle.create(
+                #     id=uuid.uuid3(uuid.NAMESPACE_URL, url),
+                #     headline=headline,
+                #     URL=url,
+                #     publish_time=publish_time,
+                #     source_name='Channel News Asia',
+                # )
                 count += 1
-        data.to_csv('data/all_data.csv', index_label='index')
-        data.to_excel('data/all_data.xlsx', index_label='index')
+        data.to_csv('data/all_data1.csv', index_label='index')
+        data.to_excel('data/all_data1.xlsx', index_label='index')
         browser.close()
-    # exit()
+        # exit()
 
 
 if __name__ == '__main__':
+    print(db.connect())
     main_urls = ['https://www.channelnewsasia.com/news/topic/coronavirus']
-    for i in range(1, 49):
+    for i in range(1, 2):
         url = "https://www.channelnewsasia.com/news/topic/coronavirus?pageNum={0}".format(i)
         main_urls.append(url)
 
@@ -72,3 +91,4 @@ if __name__ == '__main__':
     # exit()
 
     get_data(main_urls)
+    db.close()
