@@ -19,10 +19,19 @@ def get_dat_bs(url):
             if 'publish-date' in s.get('class'):
                 pub_date = s.text
                 break
-
+    if pub_date == '':
+        f = open('data/error.txt')
+        f.write(url)
+        f.close()
+        return False, False
     # February 12, 11:20 pm
-    epoch_time = int(time.mktime(time.strptime('2020 ' + pub_date, '%Y %B %d, %I:%M %p')))
-    pub_date = time.strftime('%d-%m-%Y %H:%M:%S', time.localtime(int(epoch_time + (8 * 60 * 60))))
+    try:
+        epoch_time = int(time.mktime(time.strptime('2020 ' + pub_date, '%Y %B %d, %I:%M %p')))
+        pub_date = time.strftime('%d-%m-%Y %H:%M:%S', time.localtime(int(epoch_time + (8 * 60 * 60))))
+    except Exception as e:
+        f = open('data/error.txt')
+        f.write(url + '\t' + str(e))
+        f.close()
 
     # print(headline)
     # print(pub_date)
@@ -54,12 +63,14 @@ if __name__ == '__main__':
         urls = URLS.readlines()
 
     data = pd.DataFrame(columns=['headline', 'source_url', 'publish_date', 'publisher'])
-    for i, url in tqdm(enumerate(urls)):
+    i = 0
+    for url in tqdm(urls):
         # print(url.strip())
         url = url.strip()
         headline, publish_date = get_dat_bs(url)
         if headline:
             data.loc[i] = [headline, url, publish_date, 'Mothership']
+            i += 1
             # data = data.append([headline, url, publish_date, 'Mothership'])
         data.to_csv('data/all_data_new.csv', index_label='index')
         data.to_excel('data/all_data_new.xlsx', index_label='index')

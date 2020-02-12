@@ -1,6 +1,9 @@
+import time
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from tqdm import tqdm
 
 
 def get_data_bs(url):
@@ -11,17 +14,16 @@ def get_data_bs(url):
     headline = soup1.find('h1').text
     pub_date = ''
     # print(soup1.find_all('span'))
-    publish_dates = soup1.find()
-    pub_dates = []
-    for s in soup1.find_all('span'):
-        if s and s.get('class'):
-            if 'elementor-icon-list-text' in s.get('class'):
-                pub_dates.append(s.text)
+    publish_dates = soup1.find('meta', {'property': 'article:published_time'})
+    # print(publish_dates.get('content'))
 
-    print(pub_dates)
-    pub_date = pub_dates[1][8:].strip()
-    print(headline)
-    print(pub_date)
+    pub_date = publish_dates.get('content')
+    # print(headline)
+    # 2020-02-10T07:58:10+00:00
+    # print(pub_date)
+    epoch_time = int(time.mktime(time.strptime(pub_date[:-6], '%Y-%m-%dT%H:%M:%S')))
+    pub_date = time.strftime('%d-%m-%Y %H:%M:%S', time.localtime(int(epoch_time + (8 * 60 * 60))))
+    # print(pub_date)
 
     # check if the article is related to corona virus
     related_article = False
@@ -50,14 +52,14 @@ if __name__ == '__main__':
         urls = URLS.readlines()
 
     data = pd.DataFrame(columns=['headline', 'source_url', 'publish_date', 'publisher'])
-    for i, url in enumerate(urls):
-        print(url.strip())
+    i = 0
+    for url in tqdm(urls):
+        # print(url.strip())
         url = url.strip()
         headline, publish_date = get_data_bs(url)
         if headline:
-            print([headline, url, publish_date, 'The Online Citizen'])
-            # data.loc[i] = [headline, url, publish_date, 'The Online Citizen']
-            # data = data.append([headline, url, publish_date, 'Mothership'])
+            # print([headline, url, publish_date, 'The Online Citizen'])
+            data.loc[i] = [headline, url, publish_date, 'The Online Citizen']
+            i += 1
         data.to_csv('data/all_data_new.csv', index_label='index')
         data.to_excel('data/all_data_new.xlsx', index_label='index')
-        # exit()
