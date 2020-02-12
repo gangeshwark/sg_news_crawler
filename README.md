@@ -24,7 +24,7 @@
 ## Notes
 1. Today Online has no time stamp. Only published date available.
 2. Can not crawl from The Independent SG. Auto blocking crawlers.
-3. Can only crawl Today Online until Jan 22, 2020
+3. Can only crawl 'Today Online' until Jan 22, 2020
 
 ### TODO
 - [X] CNA Timestamp
