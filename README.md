@@ -12,13 +12,26 @@
 
 
 ### To run CNA
-`python crawler.py`
+`python cna/crawler.py`
 
 
 ### To run Mothership
+`python mothership/ms_sel.py`
+`python mothership/get_data.py`
 
 
-###
+### To run The Strait Times
+
+### To run The New York Times
+`python parse_archive.py`
+
+### To run The Guardian
+
+### To run The Online Citizen
+
+### To run Today Online
+
+### To run SCMP
 
 
 ## Notes
