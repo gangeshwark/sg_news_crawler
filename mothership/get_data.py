@@ -1,6 +1,9 @@
+import time
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from tqdm import tqdm
 
 
 def get_dat_bs(url):
@@ -16,8 +19,13 @@ def get_dat_bs(url):
             if 'publish-date' in s.get('class'):
                 pub_date = s.text
                 break
-    print(headline)
-    print(pub_date)
+
+    # February 12, 11:20 pm
+    epoch_time = int(time.mktime(time.strptime('2020 ' + pub_date, '%Y %B %d, %I:%M %p')))
+    pub_date = time.strftime('%d-%m-%Y %H:%M:%S', time.localtime(int(epoch_time + (8 * 60 * 60))))
+
+    # print(headline)
+    # print(pub_date)
 
     # check if the article is related to corona virus
     KWs = ['nCov', 'virus', 'Virus', 'coronavirus', 'Coronavirus', 'wuhan', 'Wuhan', '2019-nCoV']
@@ -42,16 +50,16 @@ def get_dat_bs(url):
 
 
 if __name__ == '__main__':
-    with open('all_urls.txt', 'r') as URLS:
+    with open('data/all_urls_new.txt', 'r') as URLS:
         urls = URLS.readlines()
 
     data = pd.DataFrame(columns=['headline', 'source_url', 'publish_date', 'publisher'])
-    for i, url in enumerate(urls):
-        print(url.strip())
+    for i, url in tqdm(enumerate(urls)):
+        # print(url.strip())
         url = url.strip()
         headline, publish_date = get_dat_bs(url)
         if headline:
             data.loc[i] = [headline, url, publish_date, 'Mothership']
             # data = data.append([headline, url, publish_date, 'Mothership'])
-        data.to_csv('all_data.csv', index_label='index')
-        data.to_excel('all_data.xlsx', index_label='index')
+        data.to_csv('data/all_data_new.csv', index_label='index')
+        data.to_excel('data/all_data_new.xlsx', index_label='index')

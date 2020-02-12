@@ -4,12 +4,15 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import requests
 from bs4 import BeautifulSoup
+from selenium.webdriver.firefox.options import Options
 from tqdm import tqdm
 
-driver = webdriver.Firefox(executable_path='../geckodriver')
+opt = Options()
+opt.headless = True
+driver = webdriver.Firefox(executable_path='../geckodriver', options=opt)
 driver.get("https://www.mothership.sg/category/news/")
 
-exit()
+# exit()
 
 
 def get_data(url):
@@ -47,7 +50,7 @@ for div in driver.find_elements_by_class_name('ind-article'):
 
 driver.close()
 
-with open('all_urls.txt', 'w+') as URLS:
+with open('data/all_urls_new.txt', 'w+') as URLS:
     for url in all_urls:
         URLS.write(url + '\n')
         # get_data(url)
