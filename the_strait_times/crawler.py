@@ -16,27 +16,27 @@ def format_time(str_time):
         substract = [int(s) for s in str_time.split() if s.isdigit()]
         substract = substract[0] * 60
         epoch_time -= substract
-        time = time.strftime('%Y-%m-%d', time.localtime(int(epoch_time)))
+        time = time.strftime('%d-%m-%Y %H:%M:%S', time.localtime(int(epoch_time)))
 
     elif 'hour' in str_time:
         substract = [int(s) for s in str_time.split() if s.isdigit()]
         substract = substract[0] * 60 * 60
         epoch_time -= substract
-        time = time.strftime('%Y-%m-%d', time.localtime(int(epoch_time)))
+        time = time.strftime('%d-%m-%Y %H:%M:%S', time.localtime(int(epoch_time)))
     else:
-        time = datetime.strptime(str_time, '%b %d, %Y, %I:%M %p').strftime('%Y-%m-%d')
+        time = datetime.strptime(str_time, '%b %d, %Y, %I:%M %p').strftime('%d-%m-%Y %H:%M:%S')
 
     return time
 
 
 def get_data(main_url):
     count = 1
-    for x in range(120, 123):
+    for x in range(0, 147):
         page_url = main_url.format(x)
         print(page_url)
         options = Options()
         options.headless = True
-        browser = webdriver.Firefox(executable_path='//geckodriver',
+        browser = webdriver.Firefox(executable_path='../geckodriver',
                                     options=options)
 
         browser.get(page_url)
@@ -64,8 +64,8 @@ def get_data(main_url):
             data.loc[count] = [headline, url, publish_time, 'The Straits Times']
             count += 1
         browser.close()
-        data.to_csv('data/all_data1.csv', index_label='index')
-        data.to_excel('data/all_data1.xlsx', index_label='index')
+        data.to_csv('data/all_data_new.csv', index_label='index')
+        data.to_excel('data/all_data_new.xlsx', index_label='index')
 
 
 if __name__ == '__main__':
