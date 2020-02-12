@@ -1,0 +1,3 @@
+1. Add exact time of the post for Strait Times, Mothership, TOC and CNA
+2. Combine data
+1. Today Online has no time stamp
