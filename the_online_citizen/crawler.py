@@ -1,6 +1,47 @@
+from time import sleep
+
 from bs4 import BeautifulSoup
 
-html = open('data/news.html', 'r')
+# open browser
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
+from tqdm import tqdm
+
+home = 'https://www.theonlinecitizen.com/'
+recrawl = True
+
+if recrawl:
+    page_url = home
+    # page_url = 'https://academicpages.github.io/'
+    print(page_url)
+    options = Options()
+    options.headless = False
+    # browser = webdriver.Firefox(executable_path='../geckodriver', options=options)
+    browser = webdriver.Chrome(executable_path='/home/gangeshwark/chromedriver')
+    browser.get(page_url)
+    browser.maximize_window()
+    body_element = browser.find_element_by_tag_name('body')
+    # print(body_element.text)
+    # print(body_element)
+    # body_element.click()
+    # body_element.send_keys(Keys.CONTROL + Keys.END)
+
+    i = 0
+    try:
+        for x in tqdm(range(300)):
+            body_element.send_keys(Keys.CONTROL + Keys.END)
+            sleep(1)
+
+    except KeyboardInterrupt as e:
+        pass
+
+    content = browser.page_source
+    with open("data/news_2.html", "w") as f:
+        f.write(content)
+    browser.close()
+
+html = open('data/news_2.html', 'r')
 content = html.read()
 soup1 = BeautifulSoup(content, "lxml")
 # print(soup1)
@@ -21,7 +62,7 @@ for article in articles:
                     break
 print(_num)
 
-with open('data/all_urls.txt', 'w+') as URLS:
+with open('data/all_urls_new.txt', 'w+') as URLS:
     for url in all_urls:
         URLS.write(url + '\n')
         # get_data(url)

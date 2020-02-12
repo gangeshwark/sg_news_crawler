@@ -11,6 +11,7 @@ def get_data_bs(url):
     headline = soup1.find('h1').text
     pub_date = ''
     # print(soup1.find_all('span'))
+    publish_dates = soup1.find()
     pub_dates = []
     for s in soup1.find_all('span'):
         if s and s.get('class'):
@@ -54,8 +55,9 @@ if __name__ == '__main__':
         url = url.strip()
         headline, publish_date = get_data_bs(url)
         if headline:
-            data.loc[i] = [headline, url, publish_date, 'The Online Citizen']
+            print([headline, url, publish_date, 'The Online Citizen'])
+            # data.loc[i] = [headline, url, publish_date, 'The Online Citizen']
             # data = data.append([headline, url, publish_date, 'Mothership'])
-        data.to_csv('data/all_data.csv', index_label='index')
-        data.to_excel('data/all_data.xlsx', index_label='index')
+        data.to_csv('data/all_data_new.csv', index_label='index')
+        data.to_excel('data/all_data_new.xlsx', index_label='index')
         # exit()
