@@ -38,6 +38,8 @@ def get_data(main_urls):
         for i, h in enumerate(a_head):
             print(i)
             if 'teaser__heading' in h.get('class'):
+                if _t >= 10:
+                    break
                 t = a_time[_t]
                 _t += 1
                 link = h.find('a')
@@ -49,40 +51,24 @@ def get_data(main_urls):
                 dt = datetime.fromtimestamp(int(ep_time))
                 # print it
 
-                publish_time = time.strftime('%Y-%m-%d ', time.localtime(int(ep_time)))
+                publish_time = time.strftime('%d-%m-%Y %H:%M:%S', time.localtime(int(ep_time)))
 
                 print(headline)
                 print(url)
                 print(publish_time)
                 # print(publish_time2)
                 data.loc[count] = [headline, url, publish_time, 'Channel News Asia']
-                news_article = NewsArticle()
-                news_article.id = uuid.uuid3(uuid.NAMESPACE_URL, url)
-                news_article.headline = headline
-                news_article.URL = url
-                news_article.publish_time = publish_time
-                news_article.source_name = 'Channel News Asia'
-                news_article.save()
-
-                # NewsArticle.create(
-                #     id=uuid.uuid3(uuid.NAMESPACE_URL, url),
-                #     headline=headline,
-                #     URL=url,
-                #     publish_time=publish_time,
-                #     source_name='Channel News Asia',
-                # )
                 count += 1
-        data.to_csv('data/all_data1.csv', index_label='index')
-        data.to_excel('data/all_data1.xlsx', index_label='index')
+        data.to_csv('data/all_data_new.csv', index_label='index')
+        data.to_excel('data/all_data_new.xlsx', index_label='index')
         browser.close()
         # exit()
 
 
 if __name__ == '__main__':
-    print(db.connect())
-    main_urls = ['https://www.channelnewsasia.com/news/topic/coronavirus']
-    for i in range(1, 2):
-        url = "https://www.channelnewsasia.com/news/topic/coronavirus?pageNum={0}".format(i)
+    main_urls = ['https://www.channelnewsasia.com/archives/12301794/wuhan-virus?&channelId=12301828']
+    for i in range(1, 78):
+        url = "https://www.channelnewsasia.com/archives/12301794/wuhan-virus?pageNum={0}&channelId=12301828".format(i)
         main_urls.append(url)
 
     print(main_urls)
@@ -91,4 +77,3 @@ if __name__ == '__main__':
     # exit()
 
     get_data(main_urls)
-    db.close()
