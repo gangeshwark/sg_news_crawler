@@ -36,7 +36,39 @@ def scmp():
 
 
 def mothership():
-    pass
+    auto_data = pd.read_csv('mothership/data/all_data_new.csv', index_col='index')
+    manual_data = pd.read_csv(manual_data_path + 'mothership.csv')
+    manual_data.columns = auto_data.columns
+
+    print(auto_data.shape)
+    print(manual_data.shape)
+    new_data = auto_data.append(manual_data)
+    print(new_data.shape)
+    new_data.drop_duplicates(['source_url'], inplace=True)
+    print(new_data.shape)
+    sh1 = auto_data.shape[0]
+    print(sh1)
+
+    da = new_data.iloc[sh1:]
+    print(da.shape, type(da))
+
+    def format_date(date):
+        try:
+            d = datetime.strptime('2020 ' + date, '%Y %B %d, %I:%M %p').strftime('%d-%m-%Y %H:%M')
+        except:
+            d = datetime.strptime(date, '%d %b %Y %I:%M %p').strftime('%d-%m-%Y %H:%M')
+        return d
+
+    for i, d in enumerate(da.iterrows()):
+        print(d[1]['source_url'])
+        new_data.iloc[i + 330] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
+                                  format_date(d[1]['publish_date']),
+                                  d[1]['publisher']]
+
+    new_data.reset_index(inplace=True)
+    new_data.drop(['index'], axis=1, inplace=True)
+    new_data.to_csv('merged_data/mothership.csv', index_label='index')
+    new_data.to_excel('merged_data/mothership.xlsx', index_label='index')
 
 
 def guardian():
@@ -46,42 +78,25 @@ def guardian():
 def remove_params(urls):
     n_urls = []
     for url in urls:
-        url = furl(url).remove(args=True, fragment=True).url
+        url = remove_param(url)
         # print(url)
         n_urls.append(url)
     return n_urls
 
 
-def News_dig(website, i=0):
-    try:
-        response = requests.get(website)
-        soup = BeautifulSoup(response.text, 'html.parser')  # 创建beautifulsoup对象
+def remove_param(url):
+    return furl(url).remove(args=True, fragment=True).url
 
-        title = soup.find('title').get_text()  # 新闻标题
-        body = soup.find('body')
-        publish_date = body.find('script').get_text()  # 发布时间
-        publish_date = re.findall(r"\D(\d{8})\D", publish_date)[-1]
-        print(publish_date)
-        print(title, publish_date)
-        # main_body = soup.find_all(class_="panel-pane pane-entity-field pane-node-body pane-first pos-0")[-1]  # 新闻主体
-        # 2020-01-01T16:59:49+08:00
-        # epoch_time = int(time.mktime(time.strptime(publish_date, '%Y%m%d')))
-        # publish_date = time.strftime('%d-%m-%Y %H:%M:%S', time.localtime(int(epoch_time)))
-        publish_date = publish_date[6:] + '-' + publish_date[4:6] + '-' + publish_date[:4]
-        print(publish_date)
-        i += 1
 
-    except Exception as e:
-        f = open('error.txt', 'a+')
-        f.write(website + '\t' + str(e) + '\n')
-        f.close()
-
-    return i
+def split_date_time():
+    pass
 
 
 def today_():
     auto_data = pd.read_csv('today/data/all_data.csv', index_col='index')
+    auto_data['crawl_type'] = 'auto'
     manual_data = pd.read_csv(manual_data_path + 'today.csv')
+    manual_data['crawl_type'] = 'manual'
     print(auto_data.columns)
     manual_data.columns = auto_data.columns
     print(manual_data.columns)
@@ -102,14 +117,18 @@ def today_():
     print(da.shape, type(da))
 
     def format_date(date):
-        d = datetime.strptime(date, '%d %B, %Y').strftime('%d-%m-%Y')
+        try:
+            d = datetime.strptime(date, '%d %B, %Y').strftime('%Y-%d-%m')
+        except:
+            d = datetime.strptime(date, '%d-%m-%Y').strftime('%Y-%d-%m')
         return d
 
-    for i, d in enumerate(da.iterrows()):
+    for i, d in enumerate(new_data.iterrows()):
         print(d[1]['source_url'])
-        new_data.iloc[i + 330] = [d[1]['headline'].strip(), d[1]['source_url'], format_date(d[1]['publish_date']),
-                                  d[1]['publisher']]
-
+        new_data.iloc[i] = [d[1]['headline'].strip(), d[1]['source_url'], format_date(d[1]['publish_date']),
+                            d[1]['publisher'], d[1]['indicator']]
+    new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%Y-%d-%m')
+    new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index'], axis=1, inplace=True)
     new_data.to_csv('merged_data/today.csv', index_label='index')
@@ -118,3 +137,4 @@ def today_():
 
 if __name__ == '__main__':
     today_()
+    # mothership()
