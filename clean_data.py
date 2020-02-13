@@ -128,9 +128,9 @@ def today_():
 
     def format_date(date):
         try:
-            d = datetime.strptime(date, '%d %B, %Y').strftime('%Y-%d-%m')
+            d = datetime.strptime(date, '%d %B, %Y').strftime('%d/%m/%y')
         except:
-            d = datetime.strptime(date, '%d-%m-%Y').strftime('%Y-%d-%m')
+            d = datetime.strptime(date, '%d-%m-%Y').strftime('%d/%m/%y')
         return d
 
     for i, d in enumerate(new_data.iterrows()):
@@ -139,7 +139,7 @@ def today_():
                             d[1]['publisher'], d[1]['crawl_type']]
 
     # Sort by date
-    new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%Y-%d-%m')
+    new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%d/%m/%y')
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
