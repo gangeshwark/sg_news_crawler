@@ -11,7 +11,55 @@ manual_data_path = 'manual_data/'
 
 
 def cna():
-    pass
+    auto_data = pd.read_csv('cna/data/all_data_new.csv', index_col='index')
+    manual_data = pd.read_csv(manual_data_path + 'cna.csv')
+    auto_data['crawl_type'] = 'auto'
+    manual_data['crawl_type'] = 'manual'
+    manual_data.columns = auto_data.columns
+
+    def reformat_url(url):
+        url = remove_param(url)
+        return url
+
+    manual_data['source_url'] = manual_data['source_url'].apply(lambda x: reformat_url(x))
+    auto_data['source_url'] = auto_data['source_url'].apply(lambda x: reformat_url(x))
+    print(auto_data.shape)
+    print(manual_data.shape)
+    new_data = auto_data.append(manual_data)
+    print(new_data.shape)
+    new_data.drop_duplicates(['source_url'], inplace=True)
+    print(new_data.shape)
+    sh1 = auto_data.shape[0]
+    print(sh1)
+    da = new_data.iloc[sh1:]
+    print(da.shape, type(da))
+
+    # exit()
+
+    def format_date(date):
+        try:
+            # 05 Feb 2020 5:00 PM
+            d = datetime.strptime(date, '%d %b %Y %H:%M %p').strftime('%d/%m/%Y %H:%M')
+        except:
+            # 31-01-2020 02:28:19
+            epoch_time = int(time.mktime(time.strptime(date, '%d-%m-%Y %H:%M:%S')))
+            d = time.strftime('%d/%m/%Y %H:%M', time.localtime(int(epoch_time)))
+        return d
+
+    for i, d in enumerate(new_data.iterrows()):
+        # print(d[1]['source_url'])
+        new_data.iloc[i] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
+                            format_date(d[1]['publish_date']), 'Channel News Asia', d[1]['crawl_type']]
+
+    new_data.drop_duplicates(['source_url'], inplace=True)
+    # Sort by date
+
+    new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%d/%m/%Y %H:%M')
+    new_data = new_data.sort_values('Date', ascending=True)
+    new_data.reset_index(inplace=True)
+    new_data.drop(['index', 'Date'], axis=1, inplace=True)
+    new_data.to_csv('merged_data/cna.csv', index_label='index')
+    new_data.to_excel('merged_data/cna.xlsx', index_label='index')
 
 
 def st():
@@ -190,6 +238,12 @@ def mothership():
 
 
 def guardian():
+    """No data yet"""
+    pass
+
+
+def independent_sg():
+    """No data yet"""
     pass
 
 
@@ -259,4 +313,5 @@ if __name__ == '__main__':
     # today_()
     # mothership()
     # scmp()
-    nyt()
+    # nyt()
+    cna()
