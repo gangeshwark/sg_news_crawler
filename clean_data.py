@@ -77,6 +77,7 @@ def cna():
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
     new_data.to_csv('merged_data/cna.csv', index_label='index')
     new_data.to_excel('merged_data/cna.xlsx', index_label='index')
+    return new_data
 
 
 def st():
@@ -130,6 +131,7 @@ def st():
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
     new_data.to_csv('merged_data/the_strait_times.csv', index_label='index')
     new_data.to_excel('merged_data/the_strait_times.xlsx', index_label='index')
+    return new_data
 
 
 def toc():
@@ -181,6 +183,7 @@ def toc():
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
     new_data.to_csv('merged_data/the_online_citizen.csv', index_label='index')
     new_data.to_excel('merged_data/the_online_citizen.xlsx', index_label='index')
+    return new_data
 
 
 def nyt():
@@ -230,7 +233,7 @@ def nyt():
     for i, d in enumerate(new_data.iterrows()):
         # print(d[1]['source_url'])
         new_data.iloc[i] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
-                            format_date(d[1]['publish_date']), d[1]['publisher'], d[1]['crawl_type']]
+                            format_date(d[1]['publish_date']), 'The New York Times', d[1]['crawl_type']]
 
     new_data.drop_duplicates(['source_url'], inplace=True)
     # Sort by date
@@ -241,6 +244,7 @@ def nyt():
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
     new_data.to_csv('merged_data/nyt.csv', index_label='index')
     new_data.to_excel('merged_data/nyt.xlsx', index_label='index')
+    return new_data
 
 
 def scmp():
@@ -285,7 +289,7 @@ def scmp():
     for i, d in enumerate(new_data.iterrows()):
         # print(d[1]['source_url'])
         new_data.iloc[i] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
-                            format_date(d[1]['publish_date']), d[1]['publisher'], d[1]['crawl_type']]
+                            format_date(d[1]['publish_date']), 'SCMP', d[1]['crawl_type']]
 
     new_data.drop_duplicates(['source_url'], inplace=True)
     # Sort by date
@@ -296,6 +300,7 @@ def scmp():
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
     new_data.to_csv('merged_data/scmp.csv', index_label='index')
     new_data.to_excel('merged_data/scmp.xlsx', index_label='index')
+    return new_data
 
 
 def mothership():
@@ -337,7 +342,7 @@ def mothership():
     for i, d in enumerate(new_data.iterrows()):
         # print(d[1]['source_url'])
         new_data.iloc[i] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
-                            format_date(d[1]['publish_date']), d[1]['publisher'], d[1]['crawl_type']]
+                            format_date(d[1]['publish_date']), 'Mothership.sg', d[1]['crawl_type']]
 
     new_data.drop_duplicates(['source_url'], inplace=True)
     # Sort by date
@@ -348,11 +353,61 @@ def mothership():
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
     new_data.to_csv('merged_data/mothership.csv', index_label='index')
     new_data.to_excel('merged_data/mothership.xlsx', index_label='index')
+    return new_data
 
 
 def guardian():
     """No data yet"""
-    pass
+    auto_data = pd.read_csv(manual_data_path + 'guardian_auto.csv', index_col='Index')
+    manual_data = pd.read_csv(manual_data_path + 'guardian.csv')
+    manual_data.columns = ['headline', 'source_url', 'publish_date', 'publisher']
+    auto_data.columns = ['headline', 'source_url', 'publish_date', 'publisher']
+    auto_data['crawl_type'] = 'auto'
+    manual_data['crawl_type'] = 'manual'
+
+    def reformat_url(url):
+        url = remove_param(url)
+        return url
+
+    manual_data['source_url'] = manual_data['source_url'].apply(lambda x: reformat_url(x))
+    auto_data['source_url'] = auto_data['source_url'].apply(lambda x: reformat_url(x))
+    print(auto_data.shape)
+    print(manual_data.shape)
+    new_data = auto_data.append(manual_data)
+    print(new_data.shape)
+    new_data.drop_duplicates(['source_url'], inplace=True)
+    print(new_data.shape)
+    sh1 = auto_data.shape[0]
+    print(sh1)
+    da = new_data.iloc[sh1:]
+    print(da.shape, type(da))
+
+    # exit()
+
+    def format_date(date):
+        try:
+            # 05 Jan 2020 2:25 PM
+            d = datetime.strptime(date, '%d %b %Y %H:%M%p').strftime('%d/%m/%Y %H:%M')
+        except:
+            # 07-01-2020 14:34:32
+            epoch_time = int(time.mktime(time.strptime(date, '%d-%m-%Y %H:%M:%S')))
+            d = time.strftime('%d/%m/%Y %H:%M', time.localtime(int(epoch_time)))
+        return d
+
+    for i, d in enumerate(new_data.iterrows()):
+        # print(d[1]['source_url'])
+        new_data.iloc[i] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
+                            format_date(d[1]['publish_date']), 'The Guardian', d[1]['crawl_type']]
+
+    new_data.drop_duplicates(['source_url'], inplace=True)
+    # Sort by date
+    new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%d/%m/%Y %H:%M')
+    new_data = new_data.sort_values('Date', ascending=True)
+    new_data.reset_index(inplace=True)
+    new_data.drop(['index', 'Date'], axis=1, inplace=True)
+    new_data.to_csv('merged_data/the_guardian.csv', index_label='index')
+    new_data.to_excel('merged_data/the_guardian.xlsx', index_label='index')
+    return new_data
 
 
 def independent_sg():
@@ -370,7 +425,7 @@ def independent_sg():
     for i, d in enumerate(new_data.iterrows()):
         # print(d[1]['source_url'])
         new_data.iloc[i] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
-                            d[1]['publish_date'], d[1]['publisher'], d[1]['crawl_type']]
+                            d[1]['publish_date'], 'The Independent Singapore', d[1]['crawl_type']]
 
     new_data.drop_duplicates(['source_url'], inplace=True)
     # Sort by date
@@ -381,6 +436,7 @@ def independent_sg():
     new_data.drop(['Index', 'Date'], axis=1, inplace=True)
     new_data.to_csv('merged_data/independent_sg.csv', index_label='index')
     new_data.to_excel('merged_data/independent_sg.xlsx', index_label='index')
+    return new_data
 
 
 def today_():
@@ -426,14 +482,24 @@ def today_():
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
     new_data.to_csv('merged_data/today.csv', index_label='index')
     new_data.to_excel('merged_data/today.xlsx', index_label='index')
+    return new_data
 
 
 if __name__ == '__main__':
-    # today_()
-    # mothership()
-    # scmp()
-    # nyt()
-    # cna()
-    # toc()
-    # st()
-    independent_sg()
+    today_data = today_()
+    mothership_data = mothership()
+    scmp_data = scmp()
+    nyt_data = nyt()
+    cna_data = cna()
+    toc_data = toc()
+    st_data = st()
+    ind_data = independent_sg()
+    guard_data = guardian()
+
+    new_data = today_data.append(
+        [mothership_data, scmp_data, nyt_data, cna_data, toc_data, st_data, ind_data, guard_data])
+
+    new_data.reset_index(inplace=True)
+    new_data.drop(['index'], axis=1, inplace=True)
+    new_data.to_csv('merged_data/headlines_data_full.csv', index_label='index')
+    new_data.to_excel('merged_data/headlines_data_full.xlsx', index_label='index')
