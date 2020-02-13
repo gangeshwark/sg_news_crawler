@@ -19,7 +19,6 @@
 `python mothership/ms_sel.py`
 `python mothership/get_data.py`
 
-
 ### To run The Strait Times
 
 ### To run The New York Times
