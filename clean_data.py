@@ -64,7 +64,7 @@ def cna():
 
 def st():
     auto_data = pd.read_csv('the_strait_times/data/all_data_new.csv', index_col='index')
-    manual_data = pd.read_csv(manual_data_path + 'the_online_citizen.csv')
+    manual_data = pd.read_csv(manual_data_path + 'straits_times.csv')
     auto_data['crawl_type'] = 'auto'
     manual_data['crawl_type'] = 'manual'
     manual_data.columns = auto_data.columns
@@ -89,28 +89,30 @@ def st():
     # exit()
 
     def format_date(date):
+        date = date.strip()
         try:
-            # 05 Feb 2020 5:00 PM
-            d = datetime.strptime(date, '%d %b %Y %H:%M %p').strftime('%d/%m/%Y %H:%M')
+            # JAN 2, 2020, 9:01 PM
+            d = datetime.strptime(date, '%b %d, %Y, %H:%M %p').strftime('%d/%m/%Y %H:%M')
         except:
-            # 31-01-2020 02:28:19
+            # 13-02-2020 03:28:43
             epoch_time = int(time.mktime(time.strptime(date, '%d-%m-%Y %H:%M:%S')))
-            d = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(int(epoch_time)))
+            d = time.strftime('%d/%m/%Y %H:%M', time.localtime(int(epoch_time)))
         return d
 
     for i, d in enumerate(new_data.iterrows()):
         # print(d[1]['source_url'])
         new_data.iloc[i] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
-                            format_date(d[1]['publish_date']), 'The Online Citizen', d[1]['crawl_type']]
+                            format_date(d[1]['publish_date']), 'The Straits Times', d[1]['crawl_type']]
 
     new_data.drop_duplicates(['source_url'], inplace=True)
+    print(new_data.shape)
     # Sort by date
-    new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%d/%m/%Y %H:%M:%S')
+    new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%d/%m/%Y %H:%M')
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/the_online_citizen.csv', index_label='index')
-    new_data.to_excel('merged_data/the_online_citizen.xlsx', index_label='index')
+    new_data.to_csv('merged_data/the_strait_times.csv', index_label='index')
+    new_data.to_excel('merged_data/the_strait_times.xlsx', index_label='index')
 
 
 def toc():
@@ -410,3 +412,4 @@ if __name__ == '__main__':
     # nyt()
     # cna()
     toc()
+    st()
