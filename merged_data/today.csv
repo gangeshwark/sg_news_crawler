@@ -1,4 +1,4 @@
-index,headline,source_url,publish_date,publisher,indicator,Date
+index,headline,source_url,publish_date,publisher,crawl_type,Date
 0,"MOH aware of severe pneumonia cases in Wuhan, China; doctors to look out for suspected cases",https://www.todayonline.com/singapore/moh-aware-severe-pneumonia-cases-wuhan-china-doctors-look-out-suspected-cases,2020-02-01,Today,manual,2020-01-02
 1,"Chinese girl with pneumonia warded, isolated after travel to Wuhan: MOH",https://www.todayonline.com/singapore/chinese-girl-pneumonia-warded-isolated-after-travel-wuhan-moh,2020-05-01,Today,manual,2020-01-05
 2,"59 people in Wuhan found with mystery pneumonia strain, authorities reveal",https://www.todayonline.com/world/59-people-wuhan-found-mystery-pneumonia-strain-authorities-reveal,2020-06-01,Today,manual,2020-01-06

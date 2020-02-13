@@ -1,16 +1,10 @@
 """
 Script to merge maun
 """
-import pandas as pd
-import requests
-import time
-from bs4 import BeautifulSoup
-from furl import furl
-import re
 from datetime import datetime
 
-from jsonschema._utils import indent
-from numba.tests.test_array_exprs import ax2
+import pandas as pd
+from furl import furl
 
 manual_data_path = 'manual_data/'
 
@@ -38,7 +32,16 @@ def scmp():
 def mothership():
     auto_data = pd.read_csv('mothership/data/all_data_new.csv', index_col='index')
     manual_data = pd.read_csv(manual_data_path + 'mothership.csv')
+    auto_data['crawl_type'] = 'auto'
+    manual_data['crawl_type'] = 'manual'
     manual_data.columns = auto_data.columns
+
+    def reformat_url(url):
+        u = url.split('//')
+        url = u[0] + '//www.' + u[1]
+        return url
+
+    manual_data['source_url'] = manual_data['source_url'].apply(lambda x: reformat_url(x))
 
     print(auto_data.shape)
     print(manual_data.shape)
@@ -54,19 +57,26 @@ def mothership():
 
     def format_date(date):
         try:
-            d = datetime.strptime('2020 ' + date, '%Y %B %d, %I:%M %p').strftime('%d-%m-%Y %H:%M')
+            d = datetime.strptime('2020 ' + date, '%Y %B %d, %I:%M %p').strftime('%d/%m/%Y %H:%M')
         except:
-            d = datetime.strptime(date, '%d %b %Y %I:%M %p').strftime('%d-%m-%Y %H:%M')
+            try:
+                d = datetime.strptime(date, '%d %b %Y %I:%M %p').strftime('%d/%m/%Y %H:%M')
+            except:
+                d = datetime.strptime(date, '%d-%m-%Y %H:%M:%S').strftime('%d/%m/%Y %H:%M')
         return d
 
-    for i, d in enumerate(da.iterrows()):
-        print(d[1]['source_url'])
-        new_data.iloc[i + 330] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
-                                  format_date(d[1]['publish_date']),
-                                  d[1]['publisher']]
+    for i, d in enumerate(new_data.iterrows()):
+        # print(d[1]['source_url'])
+        new_data.iloc[i] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
+                            format_date(d[1]['publish_date']), d[1]['publisher'], d[1]['crawl_type']]
 
+    new_data.drop_duplicates(['source_url'], inplace=True)
+    # Sort by date
+
+    new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%d/%m/%Y %H:%M')
+    new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
-    new_data.drop(['index'], axis=1, inplace=True)
+    new_data.drop(['index', 'Date'], axis=1, inplace=True)
     new_data.to_csv('merged_data/mothership.csv', index_label='index')
     new_data.to_excel('merged_data/mothership.xlsx', index_label='index')
 
@@ -94,8 +104,8 @@ def split_date_time():
 
 def today_():
     auto_data = pd.read_csv('today/data/all_data.csv', index_col='index')
-    auto_data['crawl_type'] = 'auto'
     manual_data = pd.read_csv(manual_data_path + 'today.csv')
+    auto_data['crawl_type'] = 'auto'
     manual_data['crawl_type'] = 'manual'
     print(auto_data.columns)
     manual_data.columns = auto_data.columns
@@ -124,17 +134,19 @@ def today_():
         return d
 
     for i, d in enumerate(new_data.iterrows()):
-        print(d[1]['source_url'])
+        # print(d[1]['source_url'])
         new_data.iloc[i] = [d[1]['headline'].strip(), d[1]['source_url'], format_date(d[1]['publish_date']),
-                            d[1]['publisher'], d[1]['indicator']]
+                            d[1]['publisher'], d[1]['crawl_type']]
+
+    # Sort by date
     new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%Y-%d-%m')
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
-    new_data.drop(['index'], axis=1, inplace=True)
+    new_data.drop(['index', 'Date'], axis=1, inplace=True)
     new_data.to_csv('merged_data/today.csv', index_label='index')
     new_data.to_excel('merged_data/today.xlsx', index_label='index')
 
 
 if __name__ == '__main__':
-    today_()
-    # mothership()
+    # today_()
+    mothership()
