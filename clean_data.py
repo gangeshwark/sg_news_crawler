@@ -10,6 +10,23 @@ from furl import furl
 manual_data_path = 'manual_data/'
 
 
+def remove_params(urls):
+    n_urls = []
+    for url in urls:
+        url = remove_param(url)
+        # print(url)
+        n_urls.append(url)
+    return n_urls
+
+
+def remove_param(url):
+    return furl(url).remove(args=True, fragment=True).url
+
+
+def split_date_time():
+    pass
+
+
 def cna():
     auto_data = pd.read_csv('cna/data/all_data_new.csv', index_col='index')
     manual_data = pd.read_csv(manual_data_path + 'cna.csv')
@@ -340,24 +357,30 @@ def guardian():
 
 def independent_sg():
     """No data yet"""
-    pass
+    manual_data = pd.read_csv(manual_data_path + 'independent_sg.csv', index_col='Index')
+    manual_data.columns = ['headline', 'source_url', 'publish_date', 'publisher']
+    manual_data['crawl_type'] = 'manual'
 
+    print(manual_data.shape)
+    new_data = manual_data
+    print(new_data.shape)
+    new_data.drop_duplicates(['source_url'], inplace=True)
+    print(new_data.shape)
 
-def remove_params(urls):
-    n_urls = []
-    for url in urls:
-        url = remove_param(url)
-        # print(url)
-        n_urls.append(url)
-    return n_urls
+    for i, d in enumerate(new_data.iterrows()):
+        # print(d[1]['source_url'])
+        new_data.iloc[i] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
+                            d[1]['publish_date'], d[1]['publisher'], d[1]['crawl_type']]
 
+    new_data.drop_duplicates(['source_url'], inplace=True)
+    # Sort by date
 
-def remove_param(url):
-    return furl(url).remove(args=True, fragment=True).url
-
-
-def split_date_time():
-    pass
+    new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%d/%m/%Y')
+    new_data = new_data.sort_values('Date', ascending=True)
+    new_data.reset_index(inplace=True)
+    new_data.drop(['Index', 'Date'], axis=1, inplace=True)
+    new_data.to_csv('merged_data/independent_sg.csv', index_label='index')
+    new_data.to_excel('merged_data/independent_sg.xlsx', index_label='index')
 
 
 def today_():
@@ -394,7 +417,7 @@ def today_():
     for i, d in enumerate(new_data.iterrows()):
         # print(d[1]['source_url'])
         new_data.iloc[i] = [d[1]['headline'].strip(), d[1]['source_url'], format_date(d[1]['publish_date']),
-                            d[1]['publisher'], d[1]['crawl_type']]
+                            'Today Online', d[1]['crawl_type']]
 
     # Sort by date
     new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%d/%m/%y')
@@ -411,5 +434,6 @@ if __name__ == '__main__':
     # scmp()
     # nyt()
     # cna()
-    toc()
-    st()
+    # toc()
+    # st()
+    independent_sg()
