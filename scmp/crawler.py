@@ -33,8 +33,6 @@ def News_dig(website, i=0):
         print(publish_date)
         data.loc[i] = [title, website, publish_date, 'SCMP']
         i += 1
-
-
     except Exception as e:
         f = open('error.txt', 'a+')
         f.write(website + '\t' + str(e))

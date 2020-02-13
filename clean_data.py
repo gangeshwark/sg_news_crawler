@@ -1,6 +1,7 @@
 """
 Script to merge maun
 """
+import time
 from datetime import datetime
 
 import pandas as pd
@@ -26,7 +27,58 @@ def nyt():
 
 
 def scmp():
-    pass
+    auto_data = pd.read_csv('scmp/data/all_data.csv', index_col='index')
+    manual_data = pd.read_csv(manual_data_path + 'scmp.csv')
+    auto_data['crawl_type'] = 'auto'
+    manual_data['crawl_type'] = 'manual'
+    manual_data.columns = auto_data.columns
+
+    def reformat_url(url):
+        if 'http://' in url:
+            url = 'https' + url[4:]
+        elif 'https://' in url:
+            pass
+        return url
+
+    manual_data['source_url'] = manual_data['source_url'].apply(lambda x: reformat_url(x))
+    auto_data['source_url'] = auto_data['source_url'].apply(lambda x: reformat_url(x))
+    print(auto_data.shape)
+    print(manual_data.shape)
+    new_data = auto_data.append(manual_data)
+    print(new_data.shape)
+    new_data.drop_duplicates(['source_url'], inplace=True)
+    print(new_data.shape)
+    sh1 = auto_data.shape[0]
+    print(sh1)
+
+    da = new_data.iloc[sh1:]
+    print(da.shape, type(da))
+    new_data.to_csv('merged_data/scmp.csv', index_label='index')
+
+    def format_date(date):
+        try:
+            # 10-02-2020 12:00:20
+            d = datetime.strptime(date, '%d-%m-%Y %H:%M:%S').strftime('%d/%m/%Y %H:%M:%S')
+        except:
+            # 2020-01-07T22:34:12+08:00
+            epoch_time = int(time.mktime(time.strptime(date[:-6], '%Y-%m-%dT%H:%M:%S')))
+            d = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(int(epoch_time)))
+        return d
+
+    for i, d in enumerate(new_data.iterrows()):
+        # print(d[1]['source_url'])
+        new_data.iloc[i] = [d[1]['headline'].strip(), remove_param(d[1]['source_url']),
+                            format_date(d[1]['publish_date']), d[1]['publisher'], d[1]['crawl_type']]
+
+    new_data.drop_duplicates(['source_url'], inplace=True)
+    # Sort by date
+
+    new_data['Date'] = pd.to_datetime(new_data.publish_date, format='%d/%m/%Y %H:%M:%S')
+    new_data = new_data.sort_values('Date', ascending=True)
+    new_data.reset_index(inplace=True)
+    new_data.drop(['index', 'Date'], axis=1, inplace=True)
+    new_data.to_csv('merged_data/scmp.csv', index_label='index')
+    new_data.to_excel('merged_data/scmp.xlsx', index_label='index')
 
 
 def mothership():
@@ -149,4 +201,5 @@ def today_():
 
 if __name__ == '__main__':
     # today_()
-    mothership()
+    # mothership()
+    scmp()
