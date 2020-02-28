@@ -2,7 +2,7 @@
 Script to merge maun
 """
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 from furl import furl
@@ -75,8 +75,8 @@ def cna():
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/cna.csv', index_label='index')
-    new_data.to_excel('merged_data/cna.xlsx', index_label='index')
+    new_data.to_csv('merged_data_1/cna.csv', index_label='index')
+    new_data.to_excel('merged_data_1/cna.xlsx', index_label='index')
     return new_data
 
 
@@ -129,8 +129,8 @@ def st():
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/the_strait_times.csv', index_label='index')
-    new_data.to_excel('merged_data/the_strait_times.xlsx', index_label='index')
+    new_data.to_csv('merged_data_1/the_strait_times.csv', index_label='index')
+    new_data.to_excel('merged_data_1/the_strait_times.xlsx', index_label='index')
     return new_data
 
 
@@ -181,8 +181,8 @@ def toc():
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/the_online_citizen.csv', index_label='index')
-    new_data.to_excel('merged_data/the_online_citizen.xlsx', index_label='index')
+    new_data.to_csv('merged_data_1/the_online_citizen.csv', index_label='index')
+    new_data.to_excel('merged_data_1/the_online_citizen.xlsx', index_label='index')
     return new_data
 
 
@@ -212,8 +212,8 @@ def nyt():
     print(new_data.shape)
     sh1 = auto_data.shape[0]
     print(sh1)
-    auto_data.to_csv('merged_data/nyt.csv', index_label='index')
-    new_data.to_excel('merged_data/nyt.xlsx', index_label='index')
+    auto_data.to_csv('merged_data_1/nyt.csv', index_label='index')
+    new_data.to_excel('merged_data_1/nyt.xlsx', index_label='index')
 
     da = new_data.iloc[sh1:]
     print(da.shape, type(da))
@@ -242,8 +242,8 @@ def nyt():
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/nyt.csv', index_label='index')
-    new_data.to_excel('merged_data/nyt.xlsx', index_label='index')
+    new_data.to_csv('merged_data_1/nyt.csv', index_label='index')
+    new_data.to_excel('merged_data_1/nyt.xlsx', index_label='index')
     return new_data
 
 
@@ -298,8 +298,8 @@ def scmp():
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/scmp.csv', index_label='index')
-    new_data.to_excel('merged_data/scmp.xlsx', index_label='index')
+    new_data.to_csv('merged_data_1/scmp.csv', index_label='index')
+    new_data.to_excel('merged_data_1/scmp.xlsx', index_label='index')
     return new_data
 
 
@@ -331,12 +331,20 @@ def mothership():
 
     def format_date(date):
         try:
-            d = datetime.strptime('2020 ' + date, '%Y %B %d, %I:%M %p').strftime('%d/%m/%Y %H:%M')
+            d_ = datetime.strptime('2020 ' + date, '%Y %B %d, %I:%M %p')
+            d_ = d_ + timedelta(hours=-8)
+            d = d_.strftime('%d/%m/%Y %H:%M')
         except:
             try:
-                d = datetime.strptime(date, '%d %b %Y %I:%M %p').strftime('%d/%m/%Y %H:%M')
+                # d = datetime.strptime(date, '%d %b %Y %I:%M %p').strftime('%d/%m/%Y %H:%M')
+                d_ = datetime.strptime(date, '%d %b %Y %I:%M %p')
+                d_ = d_ + timedelta(hours=-8)
+                d = d_.strftime('%d/%m/%Y %H:%M')
             except:
-                d = datetime.strptime(date, '%d-%m-%Y %H:%M:%S').strftime('%d/%m/%Y %H:%M')
+                # d = datetime.strptime(date, '%d-%m-%Y %H:%M:%S').strftime('%d/%m/%Y %H:%M')
+                d_ = datetime.strptime(date, '%d-%m-%Y %H:%M:%S')
+                d_ = d_ + timedelta(hours=-8)
+                d = d_.strftime('%d/%m/%Y %H:%M')
         return d
 
     for i, d in enumerate(new_data.iterrows()):
@@ -351,8 +359,8 @@ def mothership():
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/mothership.csv', index_label='index')
-    new_data.to_excel('merged_data/mothership.xlsx', index_label='index')
+    new_data.to_csv('merged_data_1/mothership.csv', index_label='index')
+    new_data.to_excel('merged_data_1/mothership.xlsx', index_label='index')
     return new_data
 
 
@@ -405,8 +413,8 @@ def guardian():
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/the_guardian.csv', index_label='index')
-    new_data.to_excel('merged_data/the_guardian.xlsx', index_label='index')
+    new_data.to_csv('merged_data_1/the_guardian.csv', index_label='index')
+    new_data.to_excel('merged_data_1/the_guardian.xlsx', index_label='index')
     return new_data
 
 
@@ -434,8 +442,8 @@ def independent_sg():
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['Index', 'Date'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/independent_sg.csv', index_label='index')
-    new_data.to_excel('merged_data/independent_sg.xlsx', index_label='index')
+    new_data.to_csv('merged_data_1/independent_sg.csv', index_label='index')
+    new_data.to_excel('merged_data_1/independent_sg.xlsx', index_label='index')
     return new_data
 
 
@@ -480,8 +488,8 @@ def today_():
     new_data = new_data.sort_values('Date', ascending=True)
     new_data.reset_index(inplace=True)
     new_data.drop(['index', 'Date'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/today.csv', index_label='index')
-    new_data.to_excel('merged_data/today.xlsx', index_label='index')
+    new_data.to_csv('merged_data_1/today.csv', index_label='index')
+    new_data.to_excel('merged_data_1/today.xlsx', index_label='index')
     return new_data
 
 
@@ -501,5 +509,5 @@ if __name__ == '__main__':
 
     new_data.reset_index(inplace=True)
     new_data.drop(['index'], axis=1, inplace=True)
-    new_data.to_csv('merged_data/headlines_data_full.csv', index_label='index')
-    new_data.to_excel('merged_data/headlines_data_full.xlsx', index_label='index')
+    new_data.to_csv('merged_data_1/headlines_data_full.csv', index_label='index')
+    new_data.to_excel('merged_data_1/headlines_data_full.xlsx', index_label='index')
